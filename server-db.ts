@@ -1,0 +1,351 @@
+import fs from 'fs';
+import path from 'path';
+import { Document, Folder, Inspector, Proposal } from './src/types';
+
+const DB_FILE = path.join(process.cwd(), 'data', 'db.json');
+
+// Initial seed folders
+const seedFolders: Folder[] = [
+  { id: 'f1', name: 'Văn bản QPPL', parentId: null },
+  { id: 'f1-1', name: 'Luật & Pháp lệnh', parentId: 'f1' },
+  { id: 'f1-2', name: 'Nghị định', parentId: 'f1' },
+  { id: 'f1-3', name: 'Thông tư & Quyết định', parentId: 'f1' },
+  
+  { id: 'f2', name: 'Thanh tra & Giám sát', parentId: null },
+  { id: 'f2-1', name: 'Quyết định thanh tra', parentId: 'f2' },
+  { id: 'f2-2', name: 'Kết luận thanh tra', parentId: 'f2' },
+  
+  { id: 'f3', name: 'Chỉ đạo điều hành NHNN', parentId: null },
+  { id: 'f3-1', name: 'Chỉ thị & Công văn', parentId: 'f3' }
+];
+
+// Initial seed inspectors
+const seedInspectors: Inspector[] = [
+  { id: 'ins1', name: 'Nguyễn Văn Hùng', role: 'Trưởng đoàn Thanh tra', department: 'Thanh tra Ngân hàng Nhà nước Khu vực', email: 'hung.nv@sbv.gov.vn', phone: '0912345678', status: 'Sẵn sàng' },
+  { id: 'ins2', name: 'Trần Thị Mai', role: 'Phó trưởng đoàn', department: 'Phòng Quản lý, giám sát', email: 'mai.tt@sbv.gov.vn', phone: '0987654321', status: 'Đang công tác' },
+  { id: 'ins3', name: 'Phạm Minh Đức', role: 'Thành viên Đoàn', department: 'Phòng Tiền tệ kho quỹ', email: 'duc.pm@sbv.gov.vn', phone: '0904112233', status: 'Sẵn sàng' },
+  { id: 'ins4', name: 'Lê Hoàng Hải', role: 'Thành viên Đoàn', department: 'Phòng Kế toán - Thanh toán', email: 'hai.lh@sbv.gov.vn', phone: '0936445566', status: 'Đang công tác' },
+  { id: 'ins5', name: 'Vũ Thu Trang', role: 'Thành viên giám sát', department: 'Phòng Tổng hợp', email: 'trang.vt@sbv.gov.vn', phone: '0975889900', status: 'Nghỉ phép' }
+];
+
+// Initial seed documents
+const seedDocuments: Document[] = [
+  {
+    id: 'doc1',
+    category: 'QPPL',
+    title: 'Luật Các tổ chức tín dụng 2024 (Luật số 32/2024/QH15)',
+    docNumber: '32/2024/QH15',
+    issueDate: '2024-01-18',
+    effectiveDate: '2024-07-01',
+    agency: 'Quốc hội',
+    specialization: 'An toàn hệ thống',
+    status: 'Còn hiệu lực',
+    tags: ['Tổ chức tín dụng', 'Cơ cấu lại', 'Quản trị rủi ro', 'Sở hữu chéo'],
+    folderId: 'f1-1',
+    sourceLink: 'https://data.chinhphu.vn/document/32-2024-QH15',
+    fullText: `LUẬT CÁC TỔ CHỨC TÍN DỤNG
+
+Căn cứ Hiến pháp nước Cộng hòa xã hội chủ nghĩa Việt Nam;
+Quốc hội ban hành Luật Các tổ chức tín dụng.
+
+Chương I: QUY ĐỊNH CHUNG
+Điều 1. Phạm vi điều chỉnh
+Luật này quy định về việc thành lập, tổ chức, hoạt động, can thiệp sớm, kiểm soát đặc biệt, tổ chức lại, giải thể, phá sản tổ chức tín dụng; việc thành lập, tổ chức, hoạt động của chi nhánh ngân hàng nước ngoài, văn phòng đại diện tại Việt Nam của tổ chức tín dụng nước ngoài, tổ chức nước ngoài khác có hoạt động ngân hàng; việc xử lý nợ xấu, tài sản bảo đảm của khoản nợ xấu của tổ chức tín dụng, chi nhánh ngân hàng nước ngoài.
+
+Điều 4. Sở hữu cổ phần và giới hạn sở hữu cổ phần
+1. Một cổ đông là cá nhân không được sở hữu vượt quá 5% vốn điều lệ của một tổ chức tín dụng.
+2. Một cổ đông là tổ chức không được sở hữu vượt quá 10% vốn điều lệ của một tổ chức tín dụng (giảm từ 15% trước đây).
+3. Cổ đông và người có liên quan của cổ đông đó không được sở hữu vượt quá 15% vốn điều lệ của một tổ chức tín dụng (giảm từ 20% trước đây).
+
+Điều 156. Can thiệp sớm tổ chức tín dụng
+Ngân hàng Nhà nước xem xét đặt tổ chức tín dụng vào tình trạng can thiệp sớm khi thuộc một trong các trường hợp sau đây:
+a) Số lỗ lũy kế của tổ chức tín dụng lớn hơn 15% giá trị của vốn điều lệ và các quỹ dự trữ;
+b) Không duy trì được tỷ lệ khả năng chi trả hoặc tỷ lệ an toàn vốn trong thời gian quy định;
+c) Bị xếp hạng dưới mức trung bình theo quy định của Ngân hàng Nhà nước.`,
+    aiSummary: {
+      implications: 'Thắt chặt nghiêm ngặt giới hạn sở hữu của cổ đông lớn nhằm ngăn chặn triệt để tình trạng sở hữu chéo, thao túng ngân hàng và xung đột lợi ích. Tăng thẩm quyền can thiệp sớm của NHNN để xử lý rủi ro từ sớm trước khi ngân hàng đổ vỡ.',
+      complianceRequirements: '1. Rà soát danh sách cổ đông, đảm bảo giới hạn sở hữu cổ phần của tổ chức không quá 10%, cổ đông và người có liên quan không quá 15%.\n2. Tăng cường xây dựng các kịch bản tự phục hồi và cảnh báo sớm về vốn, thanh khoản để báo cáo NHNN ngay khi tiệm cận ngưỡng Can thiệp sớm.',
+      keyTakeaways: [
+        'Cổ đông cá nhân tối đa sở hữu 5% vốn điều lệ.',
+        'Cổ đông tổ chức giảm tỷ lệ từ 15% xuống tối đa 10% vốn.',
+        'Nhóm cổ đông liên quan giảm tỷ lệ sở hữu từ 20% xuống tối đa 15%.',
+        'Cơ chế can thiệp sớm cực kỳ chủ động khi phát hiện rủi ro về vốn hoặc thanh khoản.'
+      ]
+    },
+    createdAt: '2026-01-01T08:00:00Z'
+  },
+  {
+    id: 'doc2',
+    category: 'QPPL',
+    title: 'Thông tư số 02/2023/TT-NHNN về cơ cấu lại thời hạn trả nợ và giữ nguyên nhóm nợ',
+    docNumber: '02/2023/TT-NHNN',
+    issueDate: '2023-04-23',
+    effectiveDate: '2023-04-24',
+    agency: 'Ngân hàng Nhà nước Chi nhánh Khu vực 9',
+    specialization: 'Tín dụng & Quản lý rủi ro',
+    status: 'Còn hiệu lực',
+    tags: ['Cơ cấu nợ', 'Giữ nguyên nhóm nợ', 'Hỗ trợ doanh nghiệp', 'Trích lập dự phòng'],
+    folderId: 'f1-3',
+    sourceLink: 'https://sbv.gov.vn/webcenter/portal/vi/menu/trangchu/vbqp/tt022023',
+    fullText: `THÔNG TƯ
+QUY ĐỊNH VỀ VIỆC TỔ CHỨC TÍN DỤNG, CHI NHÁNH NGÂN HÀNG NƯỚC NGOÀI CƠ CẤU LẠI THỜI HẠN TRẢ NỢ VÀ GIỮ NGUYÊN NHÓM NỢ NHẰM HỖ TRỢ KHÁCH HÀNG GẶP KHÓ KHĂN
+
+Điều 4. Cơ cấu lại thời hạn trả nợ và giữ nguyên nhóm nợ
+Tổ chức tín dụng, chi nhánh ngân hàng nước ngoài xem xét cơ cấu lại thời hạn trả nợ và giữ nguyên nhóm nợ khi đáp ứng đầy đủ các điều kiện sau đây:
+1. Phát sinh nghĩa vụ trả nợ gốc và/hoặc lãi trong khoảng thời gian từ ngày Thông tư này có hiệu lực đến hết ngày quy định.
+2. Khách hàng gặp khó khăn không có khả năng trả nợ đúng hạn do suy thoái kinh tế hoặc ảnh hưởng sản xuất kinh doanh nhưng được đánh giá có khả năng trả nợ đầy đủ theo thời hạn cơ cấu lại.
+3. Việc cơ cấu lại thời hạn trả nợ được thực hiện trước hoặc trong thời hạn 10 ngày kể từ ngày đến hạn thanh toán.
+
+Điều 5. Trích lập dự phòng rủi ro đối với nợ được cơ cấu lại
+Tổ chức tín dụng phải thực hiện trích lập dự phòng rủi ro cụ thể đối với khách hàng có số dư nợ được cơ cấu lại thời hạn trả nợ theo nguyên tắc tính toán số tiền dự phòng chênh lệch và phân bổ theo lộ trình (ví dụ tối thiểu 50% vào cuối năm đầu tiên và 100% vào năm tiếp theo).`,
+    aiSummary: {
+      implications: 'Tạo cơ chế pháp lý để hỗ trợ thanh khoản cho doanh nghiệp gặp khó khăn bằng cách lùi thời hạn trả nợ mà không bị nhảy nhóm nợ xấu. Đồng thời kiểm soát rủi ro hệ thống bằng cách buộc các ngân hàng phải trích lập dự phòng bổ sung một cách minh bạch theo lộ trình cụ thể.',
+      complianceRequirements: '1. Thiết lập quy trình nội bộ phê duyệt cơ cấu nợ, chứng minh tính khách quan về khó khăn của doanh nghiệp và phương án trả nợ khả thi.\n2. Trích lập dự phòng rủi ro cụ thể bổ sung cho các khoản nợ này, hạch toán đúng tài khoản ngoại bảng và phân bổ chi phí dự phòng chính xác theo quý.',
+      keyTakeaways: [
+        'Áp dụng cho nghĩa vụ trả gốc/lãi phát sinh trong giai đoạn quy định.',
+        'Giữ nguyên nhóm nợ tối đa để tránh đẩy khách hàng vào nhóm nợ xấu chính thức.',
+        'Yêu cầu trích lập dự phòng rủi ro bổ sung dựa trên nhóm nợ thực tế trước khi cơ cấu.'
+      ]
+    },
+    createdAt: '2026-01-01T08:30:00Z'
+  },
+  {
+    id: 'doc3',
+    category: 'QuyetDinhThanhTra',
+    title: 'Quyết định thanh tra việc cấp tín dụng đối với lĩnh vực bất động sản tại Ngân hàng TMCP Á Châu (ACB) - Số 102/QĐ-TTGSNH',
+    docNumber: '102/QĐ-TTGSNH',
+    issueDate: '2025-03-15',
+    agency: 'Thanh tra Ngân hàng Nhà nước Khu vực 9',
+    specialization: 'Tín dụng & Quản lý rủi ro',
+    tags: ['Thanh tra', 'Cấp tín dụng', 'Bất động sản', 'ACB'],
+    folderId: 'f2-1',
+    inspectionTarget: 'Ngân hàng TMCP Á Châu (ACB)',
+    inspectionYear: 2025,
+    inspectionContent: 'Thanh tra toàn diện việc cấp tín dụng đối với lĩnh vực kinh doanh bất động sản, các dự án BT, BOT, và việc thực hiện các tỷ lệ an toàn vốn liên quan đến rủi ro tập trung tín dụng bất động sản trong giai đoạn từ năm 2023 đến hết năm 2024.',
+    fullText: `QUYẾT ĐỊNH
+VỀ VIỆC THANH TRA HOẠT ĐỘNG CẤP TÍN DỤNG BẤT ĐỘNG SẢN TẠI NGÂN HÀNG TMCP Á CHÂU
+
+CHÁNH THANH TRA, GIÁM SÁT NGÂN HÀNG
+Căn cứ Luật Ngân hàng Nhà nước Việt Nam;
+Căn cứ Luật Thanh tra năm 2022;
+Căn cứ Quyết định thành lập đoàn thanh tra chuyên đề cấp tín dụng bất động sản.
+
+QUYẾT ĐỊNH:
+Điều 1. Tiến hành thanh tra việc chấp hành quy định của pháp luật trong hoạt động cấp tín dụng đối với lĩnh vực bất động sản, cho vay mua nhà ở cao cấp, bảo lãnh nhà ở hình thành trong tương lai đối với Ngân hàng TMCP Á Châu (ACB).
+Thời kỳ thanh tra: Từ ngày 01/01/2023 đến ngày 31/12/2024. Khi cần thiết có thể xem xét trước hoặc sau thời kỳ này.
+Thời hạn thanh tra: 45 ngày làm việc kể từ ngày công bố quyết định thanh tra tại trụ sở đơn vị.
+
+Điều 2. Thành lập Đoàn thanh tra gồm:
+- Ông Nguyễn Văn Hùng, Trưởng đoàn (Cục II)
+- Bà Trần Thị Mai, Phó Trưởng đoàn (Cục I)
+- Ông Lê Hoàng Hải, Thành viên (Cục II)
+Cùng các cán bộ giám sát và chuyên viên hỗ trợ nghiệp vụ thanh tra.`,
+    aiSummary: {
+      implications: 'Động thái kiểm soát rủi ro tập trung (concentration risk) trong danh mục tín dụng bất động sản của các ngân hàng thương mại lớn. Mục đích nhằm phát hiện các rủi ro đảo nợ tiềm ẩn, cho vay sân sau, hoặc cấp tín dụng cho dự án chưa đủ điều kiện pháp lý.',
+      complianceRequirements: '1. Ngân hàng đối tượng (ACB) cần chuẩn bị đầy đủ hồ sơ pháp lý dự án, hồ sơ định giá tài sản bảo đảm, các biên bản kiểm tra sử dụng vốn cho các khoản vay BĐS trên 50 tỷ đồng.\n2. Rà soát tỷ lệ dư nợ BĐS trên tổng dư nợ nhằm chuẩn bị giải trình về an toàn hệ thống.',
+      keyTakeaways: [
+        'Cơ quan thực hiện: Thanh tra Ngân hàng Nhà nước Khu vực 9.',
+        'Đối tượng: Ngân hàng ACB.',
+        'Thời kỳ thanh tra: 2023 - 2024.',
+        'Trọng tâm: Cấp tín dụng BĐS, bảo lãnh mua nhà ở hình thành trong tương lai.'
+      ]
+    },
+    createdAt: '2026-01-02T09:00:00Z'
+  },
+  {
+    id: 'doc4',
+    category: 'KetLuanThanhTra',
+    title: 'Kết luận thanh tra về việc phòng chống rửa tiền và tuân thủ giao dịch đáng ngờ tại Sacombank - Số 350/KL-TTGSNH',
+    docNumber: '350/KL-TTGSNH',
+    issueDate: '2024-11-18',
+    agency: 'Thanh tra Ngân hàng Nhà nước Khu vực 9',
+    specialization: 'Phòng chống rửa tiền',
+    tags: ['Phòng chống rửa tiền', 'Giao dịch đáng ngờ', 'Sacombank', 'Phạt vi phạm'],
+    folderId: 'f2-2',
+    inspectionTarget: 'Ngân hàng TMCP Sài Gòn Thương Tín (Sacombank)',
+    inspectionYear: 2024,
+    inspectionContent: 'Đánh giá việc tuân thủ Luật Phòng chống rửa tiền, việc nhận biết khách hàng (KYC/CDD), phát hiện và báo cáo các giao dịch có giá trị lớn (STR), giao dịch đáng ngờ liên quan đến chuyển tiền quốc tế.',
+    keyContent: 'Yêu cầu khắc phục triệt để lỗ hổng trong hệ thống tự động lọc danh sách cấm vận và danh sách PEP. Phạt hành chính đối với 03 chi nhánh có hành vi không báo cáo kịp thời các giao dịch tiền mặt trị giá trên 400 triệu đồng.',
+    fullText: `KẾT LUẬN THANH TRA
+VỀ VIỆC CHẤP HÀNH CÁC QUY ĐỊNH PHÁP LUẬT VỀ PHÒNG CHỐNG RỬA TIỀN TẠI NGÂN HÀNG TMCP SÀI GÒN THƯƠNG TÍN (SACOMBANK)
+
+Căn cứ kết quả thanh tra của Đoàn thanh tra theo Quyết định số 225/QĐ-TTGSNH. Chánh Thanh tra, Giám sát ngân hàng kết luận như sau:
+
+1. Ưu điểm đạt được:
+Sacombank đã ban hành tương đối đầy đủ quy chế nội bộ về phòng chống rửa tiền, phân công bộ phận chuyên trách trực thuộc Trung tâm Tuân thủ để tiếp nhận và xử lý cảnh báo.
+
+2. Sai phạm, tồn tại phát hiện:
+a) Công tác nhận biết khách hàng (KYC): Có 14 hồ sơ khách hàng doanh nghiệp mở tài khoản nhưng thiếu thông tin xác minh chủ sở hữu hưởng lợi cuối cùng theo quy định tại Điều 10 Luật PCRT.
+b) Giám sát giao dịch: Hệ thống cảnh báo tự động hoạt động chưa hiệu quả, để lọt lưới một số giao dịch chuyển tiền liên tục có dấu hiệu chia nhỏ dòng tiền dưới ngưỡng phải báo cáo (400 triệu đồng).
+c) Báo cáo giao dịch đáng ngờ: Chậm báo cáo đối với 05 trường hợp chuyển khoản quốc tế có giá trị lớn đi các quốc gia có rủi ro cao về rửa tiền.
+
+3. Biện pháp xử lý:
+- Phạt hành chính đối với Ngân hàng Sacombank số tiền 150 triệu đồng vì hành vi chậm báo cáo giao dịch đáng ngờ.
+- Yêu cầu Tổng giám đốc Sacombank tổ chức kiểm điểm trách nhiệm cá nhân đối với Trưởng bộ phận Tuân thủ và Giám đốc 03 chi nhánh liên quan.`,
+    aiSummary: {
+      implications: 'Cảnh báo mạnh mẽ về lỗ hổng vận hành trong hệ thống giám sát tự động phòng chống rửa tiền (AML/KYC). NHNN đang thắt chặt giám sát các luồng tiền quốc tế và giao dịch tiền mặt quy mô lớn để bảo vệ tính toàn vẹn của hệ thống tài chính quốc gia.',
+      complianceRequirements: '1. Rà soát, nâng cấp ngay thuật toán phát hiện giao dịch chia nhỏ (smurfing) dưới ngưỡng báo cáo 400 triệu đồng.\n2. Thực hiện KYC nghiêm ngặt xác định chủ sở hữu hưởng lợi cuối cùng (UBO) đối với toàn bộ tài khoản doanh nghiệp mới mở.\n3. Rút ngắn thời gian xử lý và báo cáo STR gửi Cục Phòng chống rửa tiền.',
+      keyTakeaways: [
+        'Phạt hành chính Sacombank 150 triệu đồng do chậm báo cáo giao dịch đáng ngờ.',
+        'Phát hiện lỗi nghiêm trọng trong xác định chủ sở hữu hưởng lợi cuối cùng (UBO).',
+        'Yêu cầu kiểm điểm trách nhiệm cá nhân từ cấp trưởng bộ phận tuân thủ đến chi nhánh.'
+      ]
+    },
+    createdAt: '2026-01-03T10:00:00Z'
+  },
+  {
+    id: 'doc5',
+    category: 'ChiDaoNHNN',
+    title: 'Công văn số 4521/NHNN-TD về tập trung vốn tín dụng sản xuất kinh doanh và kiểm soát nợ xấu tiêu dùng',
+    docNumber: '4521/NHNN-TD',
+    issueDate: '2025-06-12',
+    agency: 'Ban Thống đốc Ngân hàng Nhà nước',
+    specialization: 'Tín dụng & Quản lý rủi ro',
+    tags: ['Hạn mức tín dụng', 'Lĩnh vực ưu tiên', 'Nợ xấu tiêu dùng', 'Ban hành công văn'],
+    folderId: 'f3-1',
+    summaryInstructions: 'Chỉ đạo định hướng dòng vốn tín dụng vào các lĩnh vực ưu tiên như nông nghiệp nông thôn, doanh nghiệp xuất khẩu, doanh nghiệp nhỏ và vừa (SMEs). Siết chặt cho vay tiêu dùng không có tài sản bảo đảm nhằm ngăn ngừa nợ xấu gia tăng nhanh.',
+    fullText: `CÔNG VĂN
+VỀ VIỆC ĐIỀU HÀNH TÍN DỤNG VÀ CHẤP HÀNH CHỈ TIÊU AN TOÀN HOẠT ĐỘNG
+
+Kính gửi: Các Tổ chức tín dụng, Chi nhánh ngân hàng nước ngoài tại Việt Nam.
+
+Tình hình kinh tế thế giới và trong nước có nhiều biến động khó lường, áp lực lạm phát và rủi ro nợ xấu gia tăng. Thống đốc Ngân hàng Nhà nước yêu cầu Chủ tịch HĐQT, Tổng giám đốc các tổ chức tín dụng nghiêm túc thực hiện các chỉ đạo sau:
+
+1. Ưu tiên tập trung vốn tín dụng cho các ngành động lực kinh tế:
+- Nông nghiệp, nông thôn;
+- Doanh nghiệp sản xuất hàng xuất khẩu;
+- Doanh nghiệp ứng dụng công nghệ cao;
+- Doanh nghiệp nhỏ và vừa (SMEs).
+
+2. Kiểm soát rủi ro cho vay tiêu dùng:
+- Các tổ chức tín dụng, đặc biệt là các công ty tài chính tiêu dùng phải rà soát chặt chẽ điều kiện cho vay, kiểm tra mục đích sử dụng vốn vay tiêu dùng không có tài sản bảo đảm.
+- Khống chế tỷ lệ nợ xấu cho vay tiêu dùng dưới 5% theo quy định, tăng cường các giải pháp thu hồi nợ nhân văn, tuân thủ pháp luật, nghiêm cấm các hành vi đòi nợ khủng bố, sai quy trình.
+
+3. Tiếp tục tiết giảm chi phí vận hành để phấn đấu giảm lãi suất cho vay hỗ trợ người dân và doanh nghiệp phục hồi sản xuất.`,
+    aiSummary: {
+      implications: 'Chuyển dịch cơ cấu tín dụng vĩ mô nhằm bảo vệ tăng trưởng kinh tế bền vững và ngăn ngừa nguy cơ "bong bóng nợ tiêu dùng". Các ngân hàng thương mại buộc phải siết chặt quy chuẩn cho vay tiêu dùng tín chấp đồng thời mở rộng quy mô tín dụng cho khối doanh nghiệp sản xuất.',
+      complianceRequirements: '1. Điều chỉnh chỉ tiêu kinh doanh nội bộ, dịch chuyển room tín dụng sang các lĩnh vực ưu tiên (nông nghiệp, SMEs).\n2. Siết lại bộ tiêu chí chấm điểm tín dụng đối với khách hàng vay tiêu dùng cá nhân.\n3. Rà soát, chấn chỉnh ngay các công ty thu hồi nợ liên kết, đảm bảo không có hành vi vi phạm pháp luật ảnh hưởng đến uy tín ngân hàng.',
+      keyTakeaways: [
+        'Dòng vốn ưu tiên: nông nghiệp, xuất khẩu, SMEs, công nghệ cao.',
+        'Siết cho vay tiêu dùng tín chấp, kiểm soát chặt mục đích sử dụng vốn.',
+        'Nghiêm cấm các hành vi đòi nợ khủng bố, ép buộc khách hàng sai quy trình.',
+        'Mục tiêu tiết giảm chi phí để tiếp tục hạ lãi suất đầu ra.'
+      ]
+    },
+    createdAt: '2026-01-04T11:00:00Z'
+  }
+];
+
+// Initial seed proposals (from focal officers)
+const seedProposals: Proposal[] = [
+  {
+    id: 'prop1',
+    title: 'Đề xuất cập nhật Dự thảo Thông tư quy định về phí dịch vụ thanh toán thẻ qua máy POS',
+    category: 'QPPL',
+    docNumber: 'Dự thảo TT-POS-2026',
+    issueDate: '2026-07-10',
+    agency: 'Vụ Thanh toán NHNN',
+    fullText: 'Tài liệu đề xuất cập nhật quy định về mức phí tối đa đối với giao dịch thẻ ghi nợ nội địa tại máy POS là không quá 0.5% trị giá giao dịch nhằm thúc đẩy thanh toán không dùng tiền mặt. Các đơn vị chấp nhận thẻ không được thu thêm bất kỳ phụ phí nào từ chủ thẻ. Đề nghị đưa lên App để các cán bộ thanh tra theo dõi phản hồi của các TCTD.',
+    proposedBy: 'hoang.nam@sbv.gov.vn (Cán bộ đầu mối Vụ Thanh toán)',
+    createdAt: '2026-07-10T14:30:00Z',
+    status: 'Chờ duyệt'
+  },
+  {
+    id: 'prop2',
+    title: 'Công văn hướng dẫn xử lý vướng mắc Nghị định 117/2018/NĐ-CP về giữ bí mật thông tin khách hàng',
+    category: 'ChiDaoNHNN',
+    docNumber: '5562/NHNN-PC',
+    issueDate: '2026-07-11',
+    agency: 'Vụ Pháp chế NHNN',
+    fullText: 'Hướng dẫn việc cung cấp thông tin tài khoản thanh toán cho cơ quan Thuế phục vụ công tác thanh tra thuế. Chỉ cung cấp khi có văn bản yêu cầu chính thức từ Cục trưởng Cục Thuế trở lên, ghi rõ danh sách tài khoản cần cung cấp và lý do hợp pháp. Cán bộ đầu mối đề xuất đưa lên hệ thống tra cứu nội bộ để đồng bộ hướng dẫn thực thi giữa các chi nhánh tỉnh thành.',
+    proposedBy: 'anh.tuan@sbv.gov.vn (Chuyên viên Vụ Pháp chế)',
+    createdAt: '2026-07-11T09:15:00Z',
+    status: 'Chờ duyệt'
+  }
+];
+
+// Initial seed change requests (for Guest -> Admin approval workflow)
+const seedChangeRequests = [
+  {
+    id: 'cr_101',
+    requestType: 'CREATE_DOCUMENT',
+    targetName: 'Thông tư số 15/2026/TT-NHNN về quản lý thanh khoản',
+    payload: {
+      category: 'QPPL',
+      title: 'Thông tư số 15/2026/TT-NHNN về quản lý rủi ro thanh khoản',
+      docNumber: '15/2026/TT-NHNN',
+      issueDate: '2026-07-20',
+      effectiveDate: '2026-09-01',
+      agency: 'Ngân hàng Nhà nước Chi nhánh Khu vực 9',
+      specialization: 'An toàn hệ thống',
+      status: 'Còn hiệu lực',
+      tags: ['Thanh khoản', 'Quản lý rủi ro', 'An toàn hoạt động'],
+      folderId: 'f1-3',
+      fullText: 'Quy định các tỷ lệ bảo đảm an toàn thanh khoản tại các tổ chức tín dụng phi ngân hàng trên địa bàn...'
+    },
+    requestedBy: 'Cán bộ Nguyễn Văn Nam (Khách)',
+    createdAt: '2026-07-25T08:30:00Z',
+    status: 'PENDING'
+  },
+  {
+    id: 'cr_102',
+    requestType: 'CREATE_FOLDER',
+    targetName: 'Chuyên đề Rửa tiền 2026',
+    payload: {
+      name: 'Chuyên đề Rửa tiền 2026',
+      parentId: 'f2-2'
+    },
+    requestedBy: 'Thanh tra viên Lê Mai Hương (Khách)',
+    createdAt: '2026-07-26T14:15:00Z',
+    status: 'PENDING'
+  }
+];
+
+// Helper to guarantee data file exists and load it
+export function initializeDb() {
+  const dir = path.dirname(DB_FILE);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+
+  if (!fs.existsSync(DB_FILE)) {
+    const initialData = {
+      documents: seedDocuments,
+      folders: seedFolders,
+      inspectors: seedInspectors,
+      proposals: seedProposals,
+      changeRequests: seedChangeRequests
+    };
+    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf-8');
+    return initialData;
+  }
+
+  try {
+    const raw = fs.readFileSync(DB_FILE, 'utf-8');
+    const data = JSON.parse(raw);
+    if (!data.changeRequests) {
+      data.changeRequests = seedChangeRequests;
+      fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+    }
+    return data;
+  } catch (err) {
+    console.error('Error reading db.json, resetting to seed...', err);
+    const initialData = {
+      documents: seedDocuments,
+      folders: seedFolders,
+      inspectors: seedInspectors,
+      proposals: seedProposals,
+      changeRequests: seedChangeRequests
+    };
+    fs.writeFileSync(DB_FILE, JSON.stringify(initialData, null, 2), 'utf-8');
+    return initialData;
+  }
+}
+
+export function saveDb(data: any) {
+  const dir = path.dirname(DB_FILE);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  fs.writeFileSync(DB_FILE, JSON.stringify(data, null, 2), 'utf-8');
+}

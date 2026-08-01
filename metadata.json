@@ -1,0 +1,6 @@
+{
+  "name": "State Bank Regulatory Search Database",
+  "description": "An AI-powered central repository and advanced BM25 searchable database for Vietnamese state bankers to manage and search laws, directives, and inspection reports with Gemini-powered summaries.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
