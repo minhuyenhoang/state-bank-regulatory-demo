@@ -1,6 +1,4 @@
 import express from "express";
-import path from "path";
-import { createServer as createViteServer } from "vite";
 import { MongoClient, Db, Document as MongoDoc, ObjectId } from "mongodb";
 import { BM25SearchEngine } from "./src/lib/searchEngine";
 import dotenv from "dotenv";
@@ -10,8 +8,6 @@ dotenv.config();
 const app = express();
 app.use(express.json());
 
-const PORT = 8080;
-
 // ==========================================
 // MongoDB Setup
 // ==========================================
@@ -20,22 +16,37 @@ const DB_NAME = process.env.MONGODB_DB_NAME || "regulatory";
 
 let mongoClient: MongoClient;
 let mongoDb: Db;
+let mongoConnectionPromise: Promise<void> | null = null;
 
 // Search engine cache for BM25
 let searchEngineCache: BM25SearchEngine;
 
 async function connectToMongo() {
-  try {
-    mongoClient = new MongoClient(MONGO_URI);
+  if (mongoDb) return;
+  if (mongoConnectionPromise) return mongoConnectionPromise;
+
+  mongoConnectionPromise = (async () => {
+    if (process.env.VERCEL && !process.env.MONGODB_URL) {
+      throw new Error("MONGODB_URL is required in the Vercel environment.");
+    }
+
+    mongoClient = new MongoClient(MONGO_URI, {
+      serverSelectionTimeoutMS: 10000,
+    });
     await mongoClient.connect();
     mongoDb = mongoClient.db(DB_NAME);
     console.log(`Successfully connected to MongoDB database: ${DB_NAME}`);
 
     // Initial load into BM25 cache
     await refreshSearchEngine();
+  })();
+
+  try {
+    await mongoConnectionPromise;
   } catch (err) {
+    mongoConnectionPromise = null;
     console.error("Failed to connect to MongoDB:", err);
-    process.exit(1);
+    throw err;
   }
 }
 
@@ -142,6 +153,19 @@ async function callGroqAPI(
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok", time: new Date().toISOString() });
+});
+
+// Vercel reuses a function instance between requests when possible. Connect
+// lazily so importing the handler never starts a process or blocks deployment.
+app.use("/api", async (_req, res, next) => {
+  try {
+    await connectToMongo();
+    next();
+  } catch (err: any) {
+    res.status(503).json({
+      error: "Database connection failed: " + (err?.message || "Unknown error"),
+    });
+  }
 });
 
 // 1. Get all documents and folders
@@ -1177,29 +1201,5 @@ app.get("/api/stats", async (req, res) => {
   }
 });
 
-// ==========================================
-// Server Bootstrapping
-// ==========================================
-async function startServer() {
-  await connectToMongo();
-
-  if (process.env.NODE_ENV !== "production") {
-    const vite = await createViteServer({
-      server: { middlewareMode: true },
-      appType: "spa",
-    });
-    app.use(vite.middlewares);
-  } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
-    app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
-    });
-  }
-
-  app.listen(PORT, "0.0.0.0", () => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  });
-}
-
-startServer();
+export { connectToMongo };
+export default app;
