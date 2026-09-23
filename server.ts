@@ -1,6 +1,6 @@
 import express from "express";
 import { MongoClient, Db, Document as MongoDoc, ObjectId } from "mongodb";
-import { BM25SearchEngine } from "./src/lib/searchEngine";
+import { BM25SearchEngine } from "./src/lib/searchEngine.js";
 import dotenv from "dotenv";
 
 dotenv.config();
