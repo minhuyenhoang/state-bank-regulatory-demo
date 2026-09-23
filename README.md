@@ -18,8 +18,8 @@ For a standalone production server, run `npm run build`,
 
 ## Deploy to Vercel
 
-1. Import the repository into Vercel. The included `vercel.json` builds the
-   Vite client and routes `/api/*` requests to the Express serverless function.
+1. Import the repository into Vercel. Vercel detects the root `server.ts` as
+   an Express application and serves the generated `public/` frontend assets.
 2. Add `MONGODB_URL`, `MONGODB_DB_NAME`, and `GROQ_API_KEY` in **Project
    Settings > Environment Variables**. `MONGODB_DB_NAME` defaults to
    `regulatory` when omitted.

@@ -1,6 +1,7 @@
 node_modules/
 build/
 dist/
+public/
 .server/
 coverage/
 .DS_Store

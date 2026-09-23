@@ -1,7 +1,7 @@
 import express from "express";
 import path from "path";
 import { createServer as createViteServer } from "vite";
-import app, { connectToMongo } from "./backend";
+import app, { connectToMongo } from "./server";
 
 const PORT = Number(process.env.PORT) || 8080;
 
@@ -15,10 +15,10 @@ async function startServer() {
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
+    const publicPath = path.join(process.cwd(), "public");
+    app.use(express.static(publicPath));
     app.get("*", (_req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+      res.sendFile(path.join(publicPath, "index.html"));
     });
   }
 
