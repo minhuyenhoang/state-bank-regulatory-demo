@@ -264,7 +264,7 @@ Toàn văn văn bản gốc được trích lục phục vụ công tác thanh t
           issueDate: date.trim(),
           agency: ag.trim(),
           fullText: fText.trim(),
-          folderId: folders.length > 0 ? folders[0].id : 'f1',
+          folderId: folders.length > 0 ? folders[0].id : '',
           tags: tgs ? tgs.split(',').map(tag => tag.trim()) : [],
         });
       }
@@ -649,7 +649,7 @@ Toàn văn văn bản gốc được trích lục phục vụ công tác thanh t
                 <div className="flex items-center space-x-2.5">
                   <Sparkles className="h-5 w-5 text-indigo-600 shrink-0" />
                   <div className="space-y-0.5 text-left">
-                    <span className="text-xs font-bold text-indigo-900 block">Tự động tóm tắt bằng Gemini AI 3.5</span>
+                    <span className="text-xs font-bold text-indigo-900 block">Tự động tóm tắt bằng Groq AI</span>
                     <span className="text-[10px] text-indigo-600 block font-sans">Trích lọc rủi ro, hệ quả pháp lý và hành động tuân thủ ngay khi lưu tài liệu.</span>
                   </div>
                 </div>

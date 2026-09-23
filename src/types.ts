@@ -36,6 +36,7 @@ export interface Folder {
   id: string;
   name: string;
   parentId: string | null; // Cấu trúc thư mục phân cấp
+  path: string[] | null;
 }
 
 export interface Inspector {
@@ -98,4 +99,3 @@ export interface ChangeRequest {
   processedAt?: string;
   rejectedReason?: string;
 }
-

@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { Document, Folder, Inspector, Proposal, DashboardStats, UserSession } from './types';
 import { SearchResult } from './lib/searchEngine';
 import DashboardOverview from './components/DashboardOverview';
-import FolderTree from './components/FolderTree';
+import FolderTree, { getSafeIdStr } from './components/FolderTree';
 import DocumentSearch from './components/DocumentSearch';
 import DocumentDetail from './components/DocumentDetail';
 import DocumentForm from './components/DocumentForm';
@@ -21,6 +21,11 @@ import {
   ArrowLeft, Clock, Send, Share2, Search, Mic, Activity, Trash2, Edit2, ShieldCheck, Download,
   Lock, LogIn
 } from 'lucide-react';
+
+const withoutId = <T extends { id?: unknown }>(record: T): Omit<T, 'id'> => {
+  const { id, ...data } = record;
+  return data;
+};
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<'dashboard' | 'explorer' | 'inspectors' | 'proposals' | 'requests'>('dashboard');
@@ -129,28 +134,43 @@ export default function App() {
   // Compute live document counts per folder (including child folder contents)
   const getDocumentCounts = () => {
     const counts: { [fid: string]: number } = {};
+
+    // 1. Initialize counts using safe string IDs
     folders.forEach(f => {
-      counts[f.id] = 0;
+      const fIdStr = getSafeIdStr(f.id);
+      counts[fIdStr] = 0;
     });
 
+    // 2. Count direct documents
     documents.forEach(doc => {
-      if (counts[doc.folderId] !== undefined) {
-        counts[doc.folderId]++;
+      const docFolderIdStr = getSafeIdStr(doc.folderId);
+      if (counts[docFolderIdStr] !== undefined) {
+        counts[docFolderIdStr]++;
       }
     });
 
-    // Bubble counts up to parent folders recursively
+    // 3. Bubble counts up to parent folders recursively
     const bubbleUp = (folderId: string, count: number) => {
-      const folder = folders.find(f => f.id === folderId);
-      if (folder && folder.parentId) {
-        counts[folder.parentId] = (counts[folder.parentId] || 0) + count;
-        bubbleUp(folder.parentId, count);
+      if (count === 0) return; // Quick optimization: skip bubbling if there's nothing to add
+
+      const folder = folders.find(f => getSafeIdStr(f.id) === folderId);
+
+      if (folder) {
+        const parentIdStr = getSafeIdStr(folder.parentId);
+
+        if (parentIdStr && parentIdStr !== '') {
+          counts[parentIdStr] = (counts[parentIdStr] || 0) + count;
+          bubbleUp(parentIdStr, count);
+        }
       }
     };
 
+    // 4. Trigger the bubble up for each folder's direct document count
     folders.forEach(f => {
-      const directCount = documents.filter(d => d.folderId === f.id).length;
-      bubbleUp(f.id, directCount);
+      const fIdStr = getSafeIdStr(f.id);
+      const directCount = documents.filter(d => getSafeIdStr(d.folderId) === fIdStr).length;
+
+      bubbleUp(fIdStr, directCount);
     });
 
     return counts;
@@ -183,18 +203,21 @@ export default function App() {
   const handleSaveDocument = async (docData: any, autoSummarize: boolean) => {
     setLoading(true);
     try {
+      const documentId = docData.id as string | undefined;
+      const documentPayload = withoutId(docData);
+
       // Guest Role check -> Submit Change Request
       if (currentUser.role === 'guest') {
-        const isEdit = !!docData.id;
+        const isEdit = !!documentId;
         const reqType = isEdit ? 'EDIT_DOCUMENT' : 'CREATE_DOCUMENT';
         const res = await fetch('/api/change-requests', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             requestType: reqType,
-            targetId: docData.id || null,
+            ...(documentId ? { targetId: documentId } : {}),
             targetName: docData.title,
-            payload: docData,
+            payload: documentPayload,
             requestedBy: currentUser.name
           })
         });
@@ -212,14 +235,14 @@ export default function App() {
       }
 
       // Admin Role -> Direct Save
-      const url = docData.id ? `/api/documents/${docData.id}` : '/api/documents';
-      const method = docData.id ? 'PUT' : 'POST';
+      const url = documentId ? `/api/documents/${documentId}` : '/api/documents';
+      const method = documentId ? 'PUT' : 'POST';
 
       const response = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          doc: docData,
+          doc: documentPayload,
           autoSummarize,
         }),
       });
@@ -227,7 +250,7 @@ export default function App() {
       if (response.ok) {
         const savedDoc = await response.json();
         // Update local list
-        if (docData.id) {
+        if (documentId) {
           setDocuments(prev => prev.map(d => d.id === savedDoc.id ? savedDoc : d));
           if (selectedDocument?.id === savedDoc.id) setSelectedDocument(savedDoc);
         } else {
@@ -264,7 +287,6 @@ export default function App() {
             requestType: 'DELETE_DOCUMENT',
             targetId: id,
             targetName: docToDelete.title,
-            payload: { id, title: docToDelete.title, docNumber: docToDelete.docNumber },
             requestedBy: currentUser.name
           })
         });
@@ -304,7 +326,7 @@ export default function App() {
   };
 
   // 4. Folder operations
-  const handleCreateFolder = async (name: string, parentId: string | null) => {
+  const handleCreateFolder = async (name: string, parentId: string | null, path: string[] | null) => {
     if (currentUser.role === 'guest') {
       try {
         const res = await fetch('/api/change-requests', {
@@ -313,7 +335,7 @@ export default function App() {
           body: JSON.stringify({
             requestType: 'CREATE_FOLDER',
             targetName: name,
-            payload: { name, parentId },
+            payload: { name, parentId, path },
             requestedBy: currentUser.name
           })
         });
@@ -335,7 +357,7 @@ export default function App() {
       const response = await fetch('/api/folders', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name, parentId }),
+        body: JSON.stringify({ name, parentId, path }),
       });
       if (response.ok) {
         const newFolder = await response.json();
@@ -359,7 +381,6 @@ export default function App() {
             requestType: 'DELETE_FOLDER',
             targetId: folderId,
             targetName: targetFolder.name,
-            payload: { id: folderId, name: targetFolder.name },
             requestedBy: currentUser.name
           })
         });
@@ -394,11 +415,16 @@ export default function App() {
   // 5. Inspectors operations
   const handleSaveInspector = async (ins: Inspector) => {
     try {
-      const response = await fetch('/api/inspectors', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(ins),
-      });
+      const isEdit = inspectors.some(existing => existing.id === ins.id);
+      const inspectorPayload = withoutId(ins);
+      const response = await fetch(
+        isEdit ? `/api/inspectors/${ins.id}` : '/api/inspectors',
+        {
+          method: isEdit ? 'PUT' : 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(inspectorPayload),
+        },
+      );
       if (response.ok) {
         const savedIns = await response.json();
         const exists = inspectors.some(i => i.id === savedIns.id);
@@ -476,7 +502,7 @@ export default function App() {
       const response = await fetch('/api/proposals', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(prop),
+        body: JSON.stringify(withoutId(prop)),
       });
       if (response.ok) {
         const newProp = await response.json();
@@ -524,7 +550,7 @@ export default function App() {
         setChatMessages(prev => [...prev, {
           id: 'ai_err_' + Date.now(),
           role: 'assistant',
-          content: `❌ Gặp sự cố kết nối: ${errData.error || 'Vui lòng kiểm tra lại cấu hình GROQ_API_KEY hoặc khóa thay thế.'}`
+          content: `❌ Gặp sự cố kết nối: ${errData.error || 'Vui lòng kiểm tra lại cấu hình GROQ_API_KEY.'}`
         }]);
       }
     } catch (err) {
@@ -843,8 +869,10 @@ export default function App() {
                 </div>
                 
                 {/* Result Snippet Highlight */}
-                {result.highlights && result.highlights.length > 0 && (
-                  <p className="text-[9px] bg-slate-50 p-1.5 rounded text-slate-600 italic border-l-2 border-l-slate-300 leading-normal" dangerouslySetInnerHTML={{ __html: '...' + result.highlights[0] + '...' }} />
+                {result.matchSnippet && (
+                  <p className="text-[9px] bg-slate-50 p-1.5 rounded text-slate-600 italic border-l-2 border-l-slate-300 leading-normal">
+                    {result.matchSnippet}
+                  </p>
                 )}
               </div>
             );
@@ -869,7 +897,7 @@ export default function App() {
             <Sparkles className="h-4.5 w-4.5 text-amber-300 animate-pulse" />
             <div>
               <span className="text-[11px] font-extrabold block">Trợ lý AI Pháp lý NHNN</span>
-              <span className="text-[8px] text-slate-200 block font-sans">Đã nạp {documents.length} văn bản • Groq Llama-3</span>
+              <span className="text-[8px] text-slate-200 block font-sans">Đã nạp {documents.length} văn bản • Groq AI</span>
             </div>
           </div>
           <button 

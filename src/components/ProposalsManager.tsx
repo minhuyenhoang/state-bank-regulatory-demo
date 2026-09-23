@@ -258,9 +258,9 @@ export default function ProposalsManager({
               <div className="p-3.5 bg-indigo-50/50 border border-indigo-100 rounded-md flex items-start space-x-2.5 text-left">
                 <Sparkles className="h-5 w-5 text-indigo-600 shrink-0 mt-0.5" />
                 <div className="space-y-0.5">
-                  <span className="text-xs font-bold text-indigo-900 block font-sans">Kích hoạt Phân tích Gemini AI</span>
+                  <span className="text-xs font-bold text-indigo-900 block font-sans">Kích hoạt Phân tích Groq AI</span>
                   <p className="text-[10px] text-indigo-600 leading-relaxed font-sans">
-                    Hệ thống sẽ tự động chuyển tài liệu này gửi đến mô hình <strong>Gemini 3.5 Flash</strong> để tự động trích lọc các tác động pháp lý & yêu cầu tuân thủ cho Banker trên trang tìm kiếm chung.
+                    Hệ thống sẽ tự động gửi tài liệu đến Groq để trích lọc các tác động pháp lý & yêu cầu tuân thủ cho Banker trên trang tìm kiếm chung.
                   </p>
                 </div>
               </div>

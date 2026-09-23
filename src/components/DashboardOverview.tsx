@@ -71,7 +71,7 @@ export default function DashboardOverview({ stats, onNavigateToCategory }: Dashb
             Cơ sở dữ liệu Pháp lý & Thanh tra Giám sát Ngân hàng
           </h1>
           <p className="text-slate-300 text-xs md:text-sm leading-relaxed">
-            Tra cứu văn bản quy phạm pháp luật, kết luận thanh tra chuyên ngành, chỉ đạo của Thống đốc tích hợp trí tuệ nhân tạo (Gemini AI) tự động đúc rút rủi ro & yêu cầu tuân thủ.
+            Tra cứu văn bản quy phạm pháp luật, kết luận thanh tra chuyên ngành, chỉ đạo của Thống đốc tích hợp Groq AI tự động đúc rút rủi ro & yêu cầu tuân thủ.
           </p>
         </div>
         {/* Subtle decorative background vector - clean geometric grid pattern */}

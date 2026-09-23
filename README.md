@@ -1,12 +1,6 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
-
-# Run and deploy your AI Studio app
+# State Bank Regulatory Search
 
 This contains everything you need to run your app locally.
-
-View your app in AI Studio: https://ai.studio/apps/af3886f5-b3f4-4ba8-aaa8-bb2f568c4cdf
 
 ## Run Locally
 
@@ -15,6 +9,6 @@ View your app in AI Studio: https://ai.studio/apps/af3886f5-b3f4-4ba8-aaa8-bb2f5
 
 1. Install dependencies:
    `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
+2. Set `GROQ_API_KEY` and `MONGODB_URL` in `.env`
 3. Run the app:
    `npm run dev`

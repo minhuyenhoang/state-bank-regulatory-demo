@@ -60,14 +60,14 @@ export default function InspectorRoster({
     }
 
     onSaveInspector({
-      id: id || 'ins_' + Date.now(),
+      ...(id ? { id } : {}),
       name: name.trim(),
       role,
       department,
       email: email.trim() || undefined,
       phone: phone.trim() || undefined,
       status,
-    });
+    } as Inspector);
 
     handleResetForm();
   };

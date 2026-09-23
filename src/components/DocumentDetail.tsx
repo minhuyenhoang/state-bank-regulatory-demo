@@ -204,7 +204,7 @@ export default function DocumentDetail({
             <div className="flex items-center justify-between p-3 bg-indigo-50/50 rounded-md border border-indigo-100/50">
               <div className="flex items-center space-x-2 text-[11px] text-indigo-700 font-medium">
                 <Sparkles className="h-3.5 w-3.5 text-indigo-600 shrink-0" />
-                <span>Phân tích pháp lý tự động bởi <strong>Gemini 3.5 Flash</strong></span>
+                <span>Phân tích pháp lý tự động bởi <strong>Groq AI</strong></span>
               </div>
               <button
                 disabled={loadingSummary}
@@ -219,7 +219,7 @@ export default function DocumentDetail({
             {loadingSummary ? (
               <div className="py-12 flex flex-col items-center justify-center space-y-3">
                 <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-600" />
-                <span className="text-xs text-slate-500 font-medium">Gemini đang phân tích tác động & yêu cầu tuân thủ...</span>
+                <span className="text-xs text-slate-500 font-medium">Groq đang phân tích tác động & yêu cầu tuân thủ...</span>
               </div>
             ) : document.aiSummary ? (
               <div className="space-y-4">

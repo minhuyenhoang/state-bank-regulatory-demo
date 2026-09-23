@@ -249,7 +249,7 @@ export default function DocumentSearch({
         <span className="text-xs text-slate-500 font-medium font-sans">
           Tìm thấy <strong className="text-slate-950 font-mono">{searchResults.length}</strong> kết quả 
           {selectedFolderId && (
-            <span> trong thư mục <strong className="text-brand-primary font-mono">"{folders.find(f => f.id === selectedFolderId)?.name}"</strong></span>
+            <span> trong thư mục <strong className="text-brand-primary font-mono">"{folders.find(f => f._id == selectedFolderId)?.name}"</strong></span>
           )}
         </span>
 
