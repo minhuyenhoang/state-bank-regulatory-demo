@@ -4,8 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Document, Folder, Inspector, Proposal, DashboardStats, UserSession } from './types';
-import { SearchResult } from './lib/searchEngine';
+import { Document, Folder, Inspector, Proposal, DashboardStats, UserSession, SearchResult } from './types';
 import DashboardOverview from './components/DashboardOverview';
 import FolderTree, { getSafeIdStr } from './components/FolderTree';
 import DocumentSearch from './components/DocumentSearch';

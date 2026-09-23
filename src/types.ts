@@ -32,6 +32,12 @@ export interface Document {
   createdAt: string;
 }
 
+export interface SearchResult {
+  document: Document;
+  score: number;
+  matchSnippet: string;
+}
+
 export interface Folder {
   id: string;
   name: string;

@@ -357,7 +357,9 @@ app.post("/api/documents/suggest-folder", async (req, res) => {
         folderScores[folder.id] = (folderScores[folder.id] || 0) + 60;
       }
 
-      const tokens = folderNameLower.split(/\s+/).filter((t) => t.length > 2);
+      const tokens = folderNameLower
+        .split(/\s+/)
+        .filter((t: any) => t.length > 2);
       let matchCount = 0;
       tokens.forEach((tok: any) => {
         if (titleLower.includes(tok)) matchCount += 4;

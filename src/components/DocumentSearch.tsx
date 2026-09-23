@@ -4,8 +4,7 @@
  */
 
 import React, { useState } from 'react';
-import { Document, DocumentCategory } from '../types';
-import { SearchResult } from '../lib/searchEngine';
+import { Document, DocumentCategory, SearchResult } from '../types';
 import { Search, Filter, Tag, Calendar, UserCheck, Eye, Sparkles, ChevronRight, Hash, AlertCircle } from 'lucide-react';
 
 interface DocumentSearchProps {
